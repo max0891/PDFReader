@@ -29,7 +29,6 @@ public class PDFReader {
             imagefolder.mkdir();
     }
     public static void main(String[] args) {
-
         long start = System.currentTimeMillis();
 
         try {
@@ -49,12 +48,18 @@ public class PDFReader {
 
             ArrayList<PDFPage> list = new ArrayList<PDFPage>(CountOfPages);
             IntStream.range(0,CountOfPages).forEach((i) -> list.add(i,pdffile.getPage(i + 1))); //pages start from 1
-            list.parallelStream().forEach((page) -> new PDFStreamConverter(page));
-
-//            ForkJoinPool forkJoinPool = new ForkJoinPool(THREADSNUM);
-//            forkJoinPool.submit(() -> list.stream().parallel().forEach((page) -> new PDFStreamConverter(page))).get();
+//            list.stream().parallel().forEach((page) -> new PDFStreamConverter(page));
+// 
+            ForkJoinPool forkJoinPool = new ForkJoinPool(THREADSNUM);
+            forkJoinPool.submit(() ->
+                    list.stream().parallel().forEach((page) -> new PDFStreamConverter(page))
+            ).get();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
 

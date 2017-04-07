@@ -34,6 +34,8 @@ public class PDFStreamConverter {
         SaveIamge(bufferedImage, CurrentPageNumber);
         writeTessText(bufferedImage, CurrentPageNumber);
 
+        Runtime.getRuntime().gc();
+
     }
     private void SaveIamge(BufferedImage image, int pagenum)
     {
@@ -47,10 +49,12 @@ public class PDFStreamConverter {
     private void writeTessText(BufferedImage img, int CurrentPageNumber)
     {
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(PDFReader.OutTessFileName + CurrentPageNumber + ".txt"));
+            String filename = PDFReader.OutTessFileName + CurrentPageNumber + ".txt";
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
             Tesseract tess = new Tesseract();
             tess.setLanguage("eng");
             String text = tess.doOCR(img);
+            new MongoTest(text, PDFReader.OutTessFileName + CurrentPageNumber + ".txt");
             bw.append(text);
             bw.close();
         } catch (TesseractException e) {
